@@ -1,0 +1,272 @@
+// Author: Jerome Richards
+
+<!DOCTYPE html>
+<html>
+
+<style>
+
+#winBox {
+	position: absolute;
+	left: 33%;
+	top: 25%;
+	height: 400px;
+	width: 600px;
+	background-color: rgb(255, 0, 0);
+	z-index: 10;
+}
+
+#winText {
+	position: absolute;
+	left: 22%;
+	top: 25%;
+	font-size: 70pt;
+}
+
+#playAgainButton {
+	position: absolute;
+	left: 32%;
+	top: 70%;
+	width: 230px;
+	height: 50px;
+	font-size: 15pt;
+}
+
+</style>
+
+<body background="background.jpg">
+
+	<button id="delayButton" onclick="setTimeout(Delay, 1000)"></button>
+
+	<div id="winBox">
+		<div id="winText">You win!</div>
+		<button id="playAgainButton" onmousedown="ResetGame()">Play again</button>
+
+	</div>
+</body>
+
+
+<script>
+
+var images = ["img01.jpg", "img02.jpg", "img03.jpg", "img04.jpg", "img05.jpg", "img06.jpg", "img07.jpg", "img08.jpg", "img09.jpg",
+	      "img10.jpg", "img11.jpg", "img12.jpg", "img13.jpg", "img14.jpg", "img15.jpg", "img16.jpg", "img17.jpg", "img18.jpg",
+	      "img01.jpg", "img02.jpg", "img03.jpg", "img04.jpg", "img05.jpg", "img06.jpg", "img07.jpg", "img08.jpg", "img09.jpg",
+	      "img10.jpg", "img11.jpg", "img12.jpg", "img13.jpg", "img14.jpg", "img15.jpg", "img16.jpg", "img17.jpg", "img18.jpg"];
+
+var topCardPic = "topCard.jpg";
+
+var cardsLeft = images.length / 2;
+
+document.getElementById("winBox").style.display = "none";
+document.getElementById("delayButton").style.display = "none";
+
+var cards = [];
+
+var color = 0;
+var shftrt = 600;
+var shftdwn = 50;
+
+var row = 0;
+var col = 0;
+
+for (j = 0; j < images.length; j++) {
+
+	if (col > 5) {
+		row++;
+		col = 0;
+	}
+
+	cards[j] = CreateCard("white");
+	var mvrt = col * 110 + shftrt;
+	cards[j].style.left = (mvrt + "px").toString();
+	var mvdwn = row * 150 + shftdwn;
+	cards[j].style.top = (mvdwn + "px").toString();
+	
+	color++;
+	col++;
+
+	if (color > 2)
+		color = 0;
+}
+
+
+// SHUFFLE CARDS
+var arr = shuffle(images);
+
+
+// SET IMAGES
+for (i = 0; i < images.length; i++) {
+		var img = document.createElement("img");
+		img.src = images[i];
+		img.style.objectFit = "fill";
+		img.style.position = "absolute";
+		img.style.width = "100%";
+		img.style.opacity = "100%";
+		cards[i].appendChild(img);
+
+
+		var logo = document.createElement("img");
+		logo.src = topCardPic;
+		logo.style.objectFit = "fill";
+		logo.style.position = "absolute";
+		logo.style.width = "100%";
+		logo.style.height = "100%";
+		cards[i].appendChild(logo);
+
+}
+
+
+
+// GAME
+var sel01 = null; //cards[0].getElementsByTagName("img")[0].src;
+var sel02 = null; //cards[18].getElementsByTagName("img")[0].src;
+
+
+for (i = 0; i < cards.length; i++) {
+	cards[i].onclick = SelectCard;
+}
+
+
+
+// FUNCTIONS
+
+function CreateCard(col) {
+	var newCard = document.createElement("DIV");
+	newCard.style.position = "absolute";
+	newCard.style.width = "100px";
+	newCard.style.height = "140px";
+	newCard.style.backgroundColor = col;
+
+	document.body.appendChild(newCard);
+
+	return newCard;
+}
+
+
+function shuffle(array) {
+ 	
+	var currentIndex = array.length, temporaryValue, randomIndex;
+
+	while (0 !== currentIndex) {
+	
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+
+	return array;
+}
+
+
+function SelectCard() {
+
+		var crd = event.target;
+
+		if (sel01 == null) {
+
+			if (crd.parentElement != document.body) {
+				crd.parentElement.childNodes[1].style.opacity = "0";
+				crd.parentElement.childNodes[0].style.opacity = "1";
+				sel01 = crd.parentElement;
+				crd = sel01;
+			}
+			else {
+				crd.childNodes[1].style.opacity = "0";
+				crd.childNodes[0].style.opacity = "1";
+				sel01 = crd;
+			}
+
+			//sel01.disabled = true;
+			sel01.style.pointerEvents = "none";
+
+		}
+		else if (sel02 == null) {
+
+			if (crd.parentElement != document.body) {
+				crd.parentElement.childNodes[1].style.opacity = "0";
+				crd.parentElement.childNodes[0].style.opacity = "1";
+				sel02 = crd.parentElement;
+				crd = sel02;
+			}
+			else {
+				crd.childNodes[1].style.opacity = "0";
+				crd.childNodes[0].style.opacity = "1";
+				sel02 = crd;
+			}
+
+			//sel02.disabled = true;
+			sel02.style.pointerEvents = "none";
+	
+			if (sel01.childNodes[0].src == sel02.childNodes[0].src) {  // IF MATCH FOUND
+				sel01.style.backgroundColor = "green";
+				sel02.style.backgroundColor = "green";
+				sel01 = null;
+				sel02 = null;
+				cardsLeft--;
+			}
+
+			document.getElementById("delayButton").click();
+		}
+
+
+	if (cardsLeft <= 0) {
+		document.getElementById("winBox").style.display = "block";
+	}
+
+}
+
+
+function ResetGame() {
+
+	document.getElementById("winBox").style.display = "none";
+	
+	for (i = 0; i < cards.length; i++) {
+		cards[i].style.backgroundColor = "white";
+		cards[i].childNodes[1].style.opacity = "1";
+		cards[i].childNodes[0].style.opacity = "0";
+		//cards[i].disabled = false;
+		cards[i].style.pointerEvents = "none";
+	}
+
+	cardsLeft = cards.length / 2;
+
+	// SHUFFLE CARDS
+	var arr = shuffle(images);
+
+
+	// SET IMAGES
+	for (i = 0; i < images.length; i++) {
+		
+		cards[i].childNodes[0].src = images[i];
+
+	}
+}
+
+function Delay() {
+
+	//sel01.disabled = false;
+	//sel02.disabled = false;
+	sel01.style.pointerEvents = "auto";
+	sel02.style.pointerEvents = "auto";
+			
+	sel01.style.backgroundColor = "white";
+	sel02.style.backgroundColor = "white";
+
+	sel01.childNodes[1].style.opacity = "1";
+	sel01.childNodes[0].style.opacity = "0";
+	sel02.childNodes[1].style.opacity = "1";
+	sel02.childNodes[0].style.opacity = "0";
+
+	sel01 = null;
+	sel02 = null;
+
+}
+
+
+
+</script>
+
+</html>
+
